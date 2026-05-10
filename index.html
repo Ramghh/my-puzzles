@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Puzzles — Teacher's Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0e1621;--surface:#182030;--surface2:#1e2840;
+  --border:#ffffff18;--gold:#f0a830;--gold2:#ffc84a;
+  --text:#e8f0f8;--text2:#7a8fa8;
+  --green:#00c878;--orange:#f0a830;--red:#ff5050;
+  --input-bg:#182030;--shadow:0 4px 20px #00000055;
+}
+body.light{
+  --bg:#edeae4;--surface:#ffffff;--surface2:#f4f1ec;
+  --border:#d0c8bc88;--gold:#b07830;--gold2:#7a4a10;
+  --text:#1a1410;--text2:#6a5840;
+  --green:#1a7a48;--orange:#c07010;--red:#c03020;
+  --input-bg:#f8f6f2;--shadow:0 4px 20px #00000018;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Amiri',serif;background:var(--bg);color:var(--text);min-height:100vh;direction:ltr;}
+
+/* HEADER */
+.header{background:var(--surface);border-bottom:2px solid var(--gold);padding:12px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow);}
+.header-icon{font-size:1.8rem;}
+.header-title{font-size:1.2rem;font-weight:700;color:var(--gold2);font-family:'Playfair Display',serif;}
+.header-sub{font-size:0.72rem;color:var(--text2);}
+.header-right{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+
+/* TABS */
+.tab-bar{display:flex;background:var(--surface);border-bottom:2px solid var(--border);overflow-x:auto;}
+.tab-btn{flex:1;background:none;border:none;color:var(--text2);font-family:'Amiri',serif;font-size:0.92rem;padding:11px 12px;cursor:pointer;border-bottom:3px solid transparent;transition:all 0.2s;white-space:nowrap;text-align:center;}
+.tab-btn.active{color:var(--gold2);border-bottom-color:var(--gold);font-weight:700;}
+
+/* MAIN */
+.main{max-width:960px;margin:0 auto;padding:16px 10px 60px;}
+.tab-page{display:none;} .tab-page.active{display:block;}
+
+/* CARD */
+.card{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:var(--shadow);}
+.card-title{font-size:1rem;font-weight:700;color:var(--gold);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+
+/* FORMS */
+label{display:block;color:var(--text2);font-size:0.8rem;margin-bottom:4px;}
+input[type=text],input[type=number],input[type=date],select,textarea{width:100%;background:var(--input-bg);border:1.5px solid var(--border);color:var(--text);font-family:'Amiri',serif;font-size:0.93rem;padding:8px 10px;border-radius:9px;outline:none;transition:border 0.2s;}
+input:focus,select:focus,textarea:focus{border-color:var(--gold);}
+select option{background:var(--surface);}
+.form-row{display:flex;gap:10px;flex-wrap:wrap;}
+.form-group{flex:1;min-width:120px;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 16px;border:none;border-radius:9px;font-family:'Amiri',serif;font-size:0.9rem;font-weight:700;cursor:pointer;transition:all 0.2s;}
+.btn-gold{background:linear-gradient(135deg,#c07000,#f0a830);color:#0e1621;}
+.btn-gold:hover{filter:brightness(1.08);}
+.btn-green{background:transparent;color:var(--green);border:1.5px solid var(--green);}
+.btn-green:hover{background:var(--green)18;}
+.btn-blue{background:transparent;color:#5a9fd4;border:1.5px solid #5a9fd4;}
+.btn-blue:hover{background:#5a9fd418;}
+.btn-purple{background:transparent;color:#c07aff;border:1.5px solid #c07aff;}
+.btn-purple:hover{background:#c07aff18;}
+.btn-danger{background:#3d0808;color:var(--red);border:1px solid var(--red)44;}
+.btn-outline{background:transparent;color:var(--gold);border:1.5px solid var(--gold);}
+.btn-sm{padding:5px 11px;font-size:0.8rem;}
+
+/* WORD ENTRY */
+.word-entry{display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:1px solid var(--border);}
+.word-num{background:var(--gold)22;border:1px solid var(--gold)44;color:var(--gold2);border-radius:6px;padding:2px 8px;font-size:0.82rem;font-weight:700;min-width:28px;text-align:center;}
+.word-text{font-family:monospace;font-weight:700;color:var(--text);flex:1;}
+.word-def{color:var(--text2);font-size:0.85rem;flex:2;font-style:italic;}
+.word-del{background:none;border:none;color:var(--red);cursor:pointer;font-size:0.95rem;padding:0 3px;}
+
+/* GRID */
+.grid-scroll{overflow-x:auto;margin:10px 0;}
+.ws-table{border-collapse:collapse;margin:0 auto;}
+.ws-table td{width:var(--cell,32px);height:var(--cell,32px);text-align:center;vertical-align:middle;font-weight:700;font-family:monospace;border:1px solid var(--border);color:var(--text);cursor:pointer;user-select:none;font-size:calc(var(--cell,32px)*0.44);transition:background 0.1s;}
+.ws-table td.hl{background:var(--gold)33;color:var(--gold2);}
+.ws-table td.found{background:var(--green)33;color:var(--green);border-color:var(--green)55;}
+body.light .ws-table td{background:#fff;}
+body.light .ws-table td.found{background:#c8f5e0;}
+
+.cw-table{border-collapse:collapse;margin:0 auto;}
+.cw-table td{width:var(--cw-cell,32px);height:var(--cw-cell,32px);text-align:center;vertical-align:middle;font-weight:700;font-family:monospace;border:1.5px solid var(--border);color:var(--text);font-size:calc(var(--cw-cell,32px)*0.44);position:relative;}
+.cw-table td.blk{background:#000c1a;border-color:#000c1a;}
+body.light .cw-table td.blk{background:#2a2a2a;}
+.cw-table td.lt{background:var(--surface2);}
+body.light .cw-table td.lt{background:#fff;}
+.cw-num{position:absolute;top:1px;right:2px;font-size:0.42rem;color:var(--gold);font-family:sans-serif;}
+
+/* FOUND WORDS */
+.found-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px;}
+.fw-badge{padding:3px 9px;border-radius:6px;font-size:0.8rem;font-weight:700;background:var(--surface2);color:var(--text2);border:1px solid var(--border);transition:all 0.3s;}
+.fw-badge.done{background:var(--green)22;color:var(--green);border-color:var(--green)44;text-decoration:line-through;}
+
+/* CLUES */
+.clues-wrap{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;}
+.clues-col{flex:1;min-width:150px;}
+.clues-col h4{color:var(--gold);font-size:0.85rem;margin-bottom:7px;border-bottom:1px solid var(--border);padding-bottom:4px;}
+.clue{font-size:0.82rem;color:var(--text2);padding:2px 0;}
+.clue b{color:var(--gold2);}
+
+/* SAVED LIST */
+.saved-item{display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;background:var(--surface2);cursor:pointer;transition:all 0.2s;}
+.saved-item:hover{border-color:var(--gold)66;background:var(--gold)11;}
+.saved-item.selected{border-color:var(--gold);background:var(--gold)18;}
+.saved-meta{flex:1;}
+.saved-title{font-weight:700;color:var(--text);}
+.saved-info{font-size:0.76rem;color:var(--text2);margin-top:2px;}
+.saved-type{background:var(--gold)22;color:var(--gold2);border:1px solid var(--gold)44;border-radius:5px;padding:2px 8px;font-size:0.76rem;font-weight:700;}
+.saved-del{background:none;border:none;color:var(--red);cursor:pointer;font-size:1rem;padding:3px 6px;}
+
+/* PREVIEW MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:#000000cc;z-index:500;overflow-y:auto;padding:16px 10px;}
+.modal-overlay.open{display:block;}
+.modal{background:var(--surface);border:2px solid var(--gold);border-radius:16px;padding:22px;max-width:700px;width:95%;margin:0 auto;}
+.modal-title{font-size:1rem;font-weight:700;color:var(--gold2);margin-bottom:14px;}
+
+/* PREVIEW FRAME */
+.preview-box{background:#fff;color:#222;border-radius:8px;padding:20px;font-family:Arial,sans-serif;direction:ltr;overflow-x:auto;}
+.preview-entete{border:2px solid #8b5e34;border-radius:6px;overflow:hidden;margin-bottom:14px;}
+.preview-entete-title{background:#8b5e34;color:#fff;text-align:center;padding:8px 14px;font-size:12pt;font-weight:bold;}
+.preview-entete-grid{display:grid;grid-template-columns:1fr 1fr;}
+.preview-entete-cell{padding:5px 12px;font-size:9.5pt;border-bottom:1px solid #e0c8a8;border-left:1px solid #e0c8a8;}
+.preview-entete-cell:nth-child(odd){background:#fffaf4;}
+.preview-entete-cell:nth-child(even){background:#fff5e8;}
+.preview-grid-wrap{overflow-x:auto;margin:10px 0;text-align:center;}
+.p-ws-td{display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;font-family:monospace;font-weight:bold;font-size:9pt;border:1px solid #ccc;}
+.p-cw-td{display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;font-family:monospace;font-weight:bold;font-size:9pt;border:1.5px solid #aaa;background:#fff;}
+.p-cw-blk{background:#222;border-color:#222;}
+
+.empty{text-align:center;color:var(--text2);padding:24px;font-size:0.9rem;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--gold)55;border-radius:4px;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">🧩</div>
+  <div>
+    <div class="header-title">Puzzles</div>
+    <div class="header-sub">Word Search · Crossword · Export</div>
+  </div>
+  <div class="header-right">
+    <a href="assistant_professeur.html" class="btn btn-outline btn-sm" style="text-decoration:none">← رجوع</a>
+    <button class="btn btn-green btn-sm" onclick="exportAllJSON()">⬇️ Export JSON</button>
+    <button class="btn btn-blue btn-sm" onclick="document.getElementById('import-json').click()">⬆️ Import JSON</button>
+    <input type="file" id="import-json" accept=".json" style="display:none" onchange="importAllJSON(event)"/>
+    <button id="theme-btn" onclick="toggleTheme()" style="background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;padding:5px 10px;cursor:pointer;font-size:1rem;color:var(--text);">☀️</button>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('create',this)">✏️ Create</button>
+  <button class="tab-btn" onclick="showTab('saved',this)">💾 Saved</button>
+  <button class="tab-btn" onclick="showTab('export',this)">📄 Export</button>
+</div>
+
+<div class="main">
+
+  <!-- ══ TAB: CREATE ══ -->
+  <div class="tab-page active" id="tab-create">
+
+    <!-- Meta info -->
+    <div class="card">
+      <div class="card-title">📋 معلومات النشاط</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>العنوان / Title</label>
+          <input type="text" id="meta-title" placeholder="Unit 3 - Vocabulary"/>
+        </div>
+        <div class="form-group">
+          <label>القسم / Class</label>
+          <input type="text" id="meta-class" placeholder="9ème de base - 3"/>
+        </div>
+        <div class="form-group">
+          <label>الأستاذ / Teacher</label>
+          <input type="text" id="meta-teacher" placeholder="Nom & Prénom"/>
+        </div>
+        <div class="form-group">
+          <label>التاريخ / Date</label>
+          <input type="date" id="meta-date"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- Type selector -->
+    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+      <button class="btn btn-gold" id="type-ws-btn" onclick="setPuzzleType('ws')" style="flex:1">🔍 Word Search</button>
+      <button class="btn btn-outline" id="type-cw-btn" onclick="setPuzzleType('cw')" style="flex:1">📝 Crossword</button>
+    </div>
+
+    <!-- WORD SEARCH SETTINGS -->
+    <div id="ws-panel">
+      <div class="card">
+        <div class="card-title">⚙️ Word Search Settings</div>
+        <div class="form-row" style="margin-bottom:12px">
+          <div class="form-group">
+            <label>Grid Size</label>
+            <select id="ws-size">
+              <option value="10">10 × 10</option>
+              <option value="12" selected>12 × 12</option>
+              <option value="15">15 × 15</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Directions</label>
+            <select id="ws-dirs">
+              <option value="simple">Horizontal + Vertical</option>
+              <option value="all">All directions</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Cell Size</label>
+            <select id="ws-cell" onchange="setCellSize('ws')">
+              <option value="24">Small (24px)</option>
+              <option value="30" selected>Medium (30px)</option>
+              <option value="36">Large (36px)</option>
+              <option value="44">X-Large (44px)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row" style="margin-bottom:10px">
+          <input type="text" id="ws-word-inp" placeholder="Enter word..." style="flex:3;font-family:monospace" onkeydown="if(event.key==='Enter')addWsWord()"/>
+          <button class="btn btn-gold btn-sm" onclick="addWsWord()">+ Add</button>
+        </div>
+        <div id="ws-word-list"></div>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+          <button class="btn btn-gold" onclick="generateWS()">🔄 Generate</button>
+          <button class="btn btn-purple" onclick="previewPuzzle('ws')">👁️ Preview</button>
+          <button class="btn btn-green" onclick="savePuzzle('ws')">💾 Save</button>
+          <button class="btn btn-danger btn-sm" onclick="clearWS()">🗑️ Clear</button>
+        </div>
+      </div>
+
+      <div class="card" id="ws-result" style="display:none">
+        <div class="card-title">🔍 Word Search — <span id="ws-result-title"></span></div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+          <button class="btn btn-blue btn-sm" onclick="shuffleHiddenLetters()">🔀 Shuffle hidden letters</button>
+        </div>
+        <div class="grid-scroll" id="ws-grid-wrap"></div>
+        <div class="found-row" id="ws-found-row"></div>
+        <p style="color:var(--text2);font-size:0.76rem;margin-top:8px">💡 Click and drag to find words</p>
+      </div>
+    </div>
+
+    <!-- CROSSWORD SETTINGS -->
+    <div id="cw-panel" style="display:none">
+      <div class="card">
+        <div class="card-title">⚙️ Crossword Settings</div>
+        <div class="form-row" style="margin-bottom:12px">
+          <div class="form-group">
+            <label>Cell Size</label>
+            <select id="cw-cell" onchange="setCellSize('cw')">
+              <option value="24">Small (24px)</option>
+              <option value="30" selected>Medium (30px)</option>
+              <option value="36">Large (36px)</option>
+              <option value="44">X-Large (44px)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row" style="margin-bottom:10px">
+          <input type="text" id="cw-word-inp" placeholder="Word..." style="flex:2;font-family:monospace" onkeydown="if(event.key==='Enter')document.getElementById('cw-def-inp').focus()"/>
+          <input type="text" id="cw-def-inp" placeholder="Definition / Clue..." style="flex:3" onkeydown="if(event.key==='Enter')addCwWord()"/>
+          <button class="btn btn-gold btn-sm" onclick="addCwWord()">+ Add</button>
+        </div>
+        <div id="cw-word-list"></div>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+          <button class="btn btn-gold" onclick="generateCW()">🔄 Generate</button>
+          <button class="btn btn-purple" onclick="previewPuzzle('cw')">👁️ Preview</button>
+          <button class="btn btn-green" onclick="savePuzzle('cw')">💾 Save</button>
+          <button class="btn btn-danger btn-sm" onclick="clearCW()">🗑️ Clear</button>
+        </div>
+      </div>
+
+      <div class="card" id="cw-result" style="display:none">
+        <div class="card-title">📝 Crossword — <span id="cw-result-title"></span></div>
+        <div class="grid-scroll" id="cw-grid-wrap"></div>
+        <div class="clues-wrap" id="cw-clues"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TAB: SAVED ══ -->
+  <div class="tab-page" id="tab-saved">
+    <div class="card">
+      <div class="card-title">💾 Saved Puzzles</div>
+      <div id="saved-list"></div>
+      <div id="saved-empty" class="empty">No saved puzzles yet</div>
+    </div>
+  </div>
+
+  <!-- ══ TAB: EXPORT ══ -->
+  <div class="tab-page" id="tab-export">
+    <div class="card">
+      <div class="card-title">📄 Export to Word</div>
+      <p style="color:var(--text2);font-size:0.85rem;margin-bottom:14px">Select puzzles to export (each on a separate page)</p>
+      <div id="export-list"></div>
+      <div id="export-empty" class="empty">No saved puzzles — save some first</div>
+      <div style="display:flex;gap:7px;margin-bottom:10px;flex-wrap:wrap">
+        <button class="btn btn-outline btn-sm" onclick="selectAllExport()">✅ Select All</button>
+        <button class="btn btn-danger btn-sm" onclick="deselectAllExport()">⬜ Deselect All</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+        <button class="btn btn-purple" onclick="previewExport()">👁️ Preview Selected</button>
+        <button class="btn btn-green" onclick="doExport()">📄 Export Selected</button>
+      </div>
+      <p id="export-count" style="color:var(--text2);font-size:0.8rem;margin-top:8px">0 selected</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- PREVIEW MODAL -->
+<div class="modal-overlay" id="preview-modal">
+  <div class="modal" style="max-width:750px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div class="modal-title">👁️ Preview</div>
+      <button class="btn btn-danger btn-sm" onclick="closePreview()">✕ Close</button>
+    </div>
+    <div id="preview-content"></div>
+    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+      <button class="btn btn-green" id="preview-export-btn" onclick="exportFromPreview()">📄 Export This</button>
+      <button class="btn btn-outline btn-sm" onclick="closePreview()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══ STATE ══
+let isDark = true;
+let puzzleType = 'ws';
+let wsWords = [], cwWords = [];
+let wsGrid = [], wsSize = 12, wsPlaced = [];
+let cwGrid = [], cwBounds = {}, cwPlaced = [];
+let savedPuzzles = JSON.parse(localStorage.getItem('puzzles_saved') || '[]');
+let wsDrag = false, wsDragCells = [], wsFound = new Set();
+let previewTarget = null;
+
+// ══ INIT ══
+document.getElementById('meta-date').value = new Date().toISOString().split('T')[0];
+
+// Try to load teacher/class from main app
+try {
+  const allData = JSON.parse(localStorage.getItem('allData') || '{}');
+  const years = Object.keys(allData);
+  if (years.length) {
+    const yr = years[years.length - 1];
+    const inst = localStorage.getItem('institution_' + yr) || '';
+    if (inst) document.getElementById('meta-teacher').placeholder = inst;
+  }
+} catch(e) {}
+
+// ══ THEME ══
+function toggleTheme() {
+  isDark = !isDark;
+  document.body.classList.toggle('light', !isDark);
+  document.getElementById('theme-btn').textContent = isDark ? '☀️' : '🌙';
+}
+
+// ══ TABS ══
+function showTab(name, btn) {
+  document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if (name === 'saved') renderSavedList();
+  if (name === 'export') renderExportList();
+}
+
+// ══ PUZZLE TYPE ══
+function setPuzzleType(t) {
+  puzzleType = t;
+  document.getElementById('ws-panel').style.display = t === 'ws' ? 'block' : 'none';
+  document.getElementById('cw-panel').style.display = t === 'cw' ? 'block' : 'none';
+  document.getElementById('type-ws-btn').className = 'btn ' + (t === 'ws' ? 'btn-gold' : 'btn-outline') + ' ';
+  document.getElementById('type-cw-btn').className = 'btn ' + (t === 'cw' ? 'btn-gold' : 'btn-outline') + ' ';
+}
+
+// ══ CELL SIZE ══
+function setCellSize(type) {
+  const v = document.getElementById(type + '-cell').value;
+  document.documentElement.style.setProperty('--' + (type === 'ws' ? 'cell' : 'cw-cell'), v + 'px');
+}
+
+// ══ META ══
+function getMeta() {
+  return {
+    title: document.getElementById('meta-title').value || 'Puzzle',
+    cls: document.getElementById('meta-class').value || '',
+    teacher: document.getElementById('meta-teacher').value || '',
+    date: document.getElementById('meta-date').value || new Date().toISOString().split('T')[0]
+  };
+}
+
+// ══════════════════════════
+//  WORD SEARCH
+// ══════════════════════════
+function addWsWord() {
+  const inp = document.getElementById('ws-word-inp');
+  const w = inp.value.trim().toUpperCase().replace(/\s+/g, '');
+  if (!w) return;
+  if (wsWords.includes(w)) { alert('Word already added!'); return; }
+  wsWords.push(w); inp.value = '';
+  renderWsWords();
+}
+function removeWsWord(i) { wsWords.splice(i, 1); renderWsWords(); }
+function renderWsWords() {
+  document.getElementById('ws-word-list').innerHTML = wsWords.map((w, i) =>
+    `<div class="word-entry">
+      <span class="word-num">${i+1}</span>
+      <span class="word-text">${w}</span>
+      <button class="word-del" onclick="removeWsWord(${i})">✕</button>
+    </div>`).join('');
+}
+function clearWS() { wsWords = []; renderWsWords(); document.getElementById('ws-result').style.display = 'none'; }
+
+function generateWS() {
+  if (!wsWords.length) { alert('Add at least one word!'); return; }
+  wsSize = parseInt(document.getElementById('ws-size').value);
+  const allDirs = document.getElementById('ws-dirs').value === 'all';
+  wsGrid = []; wsPlaced = []; wsFound = new Set();
+  for (let i = 0; i < wsSize; i++) wsGrid.push(new Array(wsSize).fill(''));
+
+  const dirs = [[0,1],[1,0]];
+  if (allDirs) dirs.push([1,1],[-1,1],[0,-1],[-1,0],[-1,-1],[1,-1]);
+
+  const sorted = [...wsWords].sort((a,b) => b.length - a.length);
+  sorted.forEach(word => {
+    let ok = false;
+    for (let t = 0; t < 300 && !ok; t++) {
+      const [dr,dc] = dirs[Math.floor(Math.random() * dirs.length)];
+      const r = Math.floor(Math.random() * wsSize);
+      const c = Math.floor(Math.random() * wsSize);
+      let valid = true; const cells = [];
+      for (let k = 0; k < word.length; k++) {
+        const nr = r + k*dr, nc = c + k*dc;
+        if (nr < 0 || nr >= wsSize || nc < 0 || nc >= wsSize) { valid = false; break; }
+        if (wsGrid[nr][nc] && wsGrid[nr][nc] !== word[k]) { valid = false; break; }
+        cells.push([nr,nc]);
+      }
+      if (valid) { cells.forEach(([nr,nc],k) => wsGrid[nr][nc] = word[k]); wsPlaced.push({word,cells}); ok = true; }
+    }
+  });
+
+  const alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  for (let r = 0; r < wsSize; r++)
+    for (let c = 0; c < wsSize; c++)
+      if (!wsGrid[r][c]) wsGrid[r][c] = alpha[Math.floor(Math.random()*26)];
+
+  renderWSGrid();
+  document.getElementById('ws-result').style.display = 'block';
+  document.getElementById('ws-result-title').textContent = getMeta().title;
+  renderWsFoundRow();
+}
+
+function shuffleHiddenLetters() {
+  if (!wsGrid.length) return;
+  const alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const placedCells = new Set(wsPlaced.flatMap(p => p.cells.map(([r,c]) => r+','+c)));
+  for (let r = 0; r < wsSize; r++)
+    for (let c = 0; c < wsSize; c++)
+      if (!placedCells.has(r+','+c)) wsGrid[r][c] = alpha[Math.floor(Math.random()*26)];
+  renderWSGrid();
+}
+
+function renderWSGrid() {
+  let html = '<table class="ws-table">';
+  for (let r = 0; r < wsSize; r++) {
+    html += '<tr>';
+    for (let c = 0; c < wsSize; c++) {
+      html += `<td id="wc${r}_${c}" onmousedown="wsDown(${r},${c})" onmouseover="wsOver(${r},${c})" onmouseup="wsUp()"
+        ontouchstart="wsTD(${r},${c})" ontouchmove="wsTM(event)" ontouchend="wsUp()">${wsGrid[r][c]}</td>`;
+    }
+    html += '</tr>';
+  }
+  html += '</table>';
+  document.getElementById('ws-grid-wrap').innerHTML = html;
+}
+
+function wsDown(r,c){wsDrag=true;wsDragCells=[[r,c]];wsHl();}
+function wsOver(r,c){
+  if(!wsDrag)return;
+  const [sr,sc]=wsDragCells[0]; const dr=r-sr,dc=c-sc;
+  const len=Math.max(Math.abs(dr),Math.abs(dc));
+  if(!len){wsDragCells=[[r,c]];wsHl();return;}
+  const rr=dr?dr/Math.abs(dr):0,rc=dc?dc/Math.abs(dc):0;
+  wsDragCells=[];
+  for(let k=0;k<=len;k++)wsDragCells.push([sr+k*rr,sc+k*rc]);
+  wsHl();
+}
+function wsUp(){wsDrag=false;wsCheck();wsClear();}
+function wsTD(r,c){wsDrag=true;wsDragCells=[[r,c]];}
+function wsTM(e){
+  e.preventDefault();
+  const t=e.touches[0];
+  const el=document.elementFromPoint(t.clientX,t.clientY);
+  if(el&&el.id.startsWith('wc')){
+    const p=el.id.slice(2).split('_');wsOver(+p[0],+p[1]);
+  }
+}
+function wsHl(){
+  document.querySelectorAll('.ws-table td').forEach(td=>{if(!td.classList.contains('found'))td.classList.remove('hl');});
+  wsDragCells.forEach(([r,c])=>{const el=document.getElementById('wc'+r+'_'+c);if(el&&!el.classList.contains('found'))el.classList.add('hl');});
+}
+function wsClear(){document.querySelectorAll('.ws-table td.hl').forEach(td=>td.classList.remove('hl'));}
+function wsCheck(){
+  const sel=wsDragCells.map(([r,c])=>wsGrid[r][c]).join('');
+  const rev=sel.split('').reverse().join('');
+  wsPlaced.forEach(p=>{
+    if((p.word===sel||p.word===rev)&&!wsFound.has(p.word)){
+      wsFound.add(p.word);
+      p.cells.forEach(([r,c])=>{const el=document.getElementById('wc'+r+'_'+c);if(el){el.classList.remove('hl');el.classList.add('found');}});
+      renderWsFoundRow();
+    }
+  });
+}
+function renderWsFoundRow(){
+  document.getElementById('ws-found-row').innerHTML=wsPlaced.map(p=>
+    `<span class="fw-badge ${wsFound.has(p.word)?'done':''}">${p.word}</span>`).join('');
+}
+document.addEventListener('touchmove',e=>{if(e.target.closest('.ws-table'))e.preventDefault();},{passive:false});
+
+// JSON EXPORT / IMPORT
+function exportAllJSON(){
+  if(!savedPuzzles.length){alert('No saved puzzles to export!');return;}
+  const data={puzzles:savedPuzzles,exportDate:new Date().toISOString()};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;
+  a.download='puzzles_backup_'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+}
+
+function importAllJSON(event){
+  const file=event.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const parsed=JSON.parse(e.target.result);
+      if(parsed.puzzles&&Array.isArray(parsed.puzzles)){
+        const mode=confirm('Replace all saved puzzles? (OK = Replace, Cancel = Merge)');
+        if(mode){
+          savedPuzzles=parsed.puzzles;
+        } else {
+          // merge - avoid duplicates by id
+          const existingIds=new Set(savedPuzzles.map(p=>p.id));
+          parsed.puzzles.forEach(function(p){if(!existingIds.has(p.id))savedPuzzles.unshift(p);});
+        }
+        localStorage.setItem('puzzles_saved',JSON.stringify(savedPuzzles));
+        alert('✅ Import successful! '+parsed.puzzles.length+' puzzles loaded.');
+        renderSavedList();renderExportList();
+      } else {alert('Invalid file format!');}
+    }catch(err){alert('Error reading file: '+err.message);}
+  };
+  reader.readAsText(file);event.target.value='';
+}
+
+// ══════════════════════════
+//  CROSSWORD
+// ══════════════════════════
+function addCwWord(){
+  const wi=document.getElementById('cw-word-inp');
+  const di=document.getElementById('cw-def-inp');
+  const w=wi.value.trim().toUpperCase().replace(/\s+/g,'');
+  const d=di.value.trim();
+  if(!w||!d){alert('Enter word AND definition!');return;}
+  if(cwWords.some(x=>x.word===w)){alert('Word already added!');return;}
+  cwWords.push({word:w,def:d});wi.value='';di.value='';
+  renderCwWords();
+}
+function removeCwWord(i){cwWords.splice(i,1);renderCwWords();}
+function renderCwWords(){
+  document.getElementById('cw-word-list').innerHTML=cwWords.map((w,i)=>
+    `<div class="word-entry">
+      <span class="word-num">${i+1}</span>
+      <span class="word-text">${w.word}</span>
+      <span class="word-def">${w.def}</span>
+      <button class="word-del" onclick="removeCwWord(${i})">✕</button>
+    </div>`).join('');
+}
+function clearCW(){cwWords=[];renderCwWords();document.getElementById('cw-result').style.display='none';}
+
+function generateCW(){
+  if(cwWords.length<2){alert('Add at least 2 words!');return;}
+  const N=22;
+  let grid=[];
+  for(let i=0;i<N;i++)grid.push(new Array(N).fill(''));
+  let placed=[];
+
+  const sorted=[...cwWords].sort((a,b)=>b.word.length-a.word.length);
+  // place first word horizontally
+  const first=sorted[0];
+  const r0=Math.floor(N/2), c0=Math.floor((N-first.word.length)/2);
+  for(let k=0;k<first.word.length;k++)grid[r0][c0+k]=first.word[k];
+  placed.push({word:first.word,def:first.def,row:r0,col:c0,dir:'H',num:1});
+
+  let num=2;
+  for(let wi=1;wi<sorted.length;wi++){
+    const entry=sorted[wi];
+    let best=null,bestScore=-1;
+    for(const p of placed){
+      for(let ei=0;ei<entry.word.length;ei++){
+        for(let pi=0;pi<p.word.length;pi++){
+          if(entry.word[ei]!==p.word[pi])continue;
+          const dir=p.dir==='H'?'V':'H';
+          let r,c;
+          if(dir==='V'){r=p.row-ei;c=p.dir==='H'?p.col+pi:p.col;}
+          else{r=p.dir==='V'?p.row+pi:p.row;c=p.col-ei;}
+          if(dir==='H'&&p.dir==='V'){c=p.col-ei;r=p.row+pi;}
+          if(dir==='V'&&p.dir==='H'){r=p.row-ei;c=p.col+pi;}
+
+          let ok=true,score=0;
+          for(let k=0;k<entry.word.length;k++){
+            const nr=dir==='H'?r:r+k,nc=dir==='H'?c+k:c;
+            if(nr<0||nr>=N||nc<0||nc>=N){ok=false;break;}
+            if(grid[nr][nc]&&grid[nr][nc]!==entry.word[k]){ok=false;break;}
+            if(grid[nr][nc]===entry.word[k])score++;
+            else{
+              if(dir==='H'){if((nr>0&&grid[nr-1][nc])||(nr<N-1&&grid[nr+1][nc])){ok=false;break;}}
+              else{if((nc>0&&grid[nr][nc-1])||(nc<N-1&&grid[nr][nc+1])){ok=false;break;}}
+            }
+          }
+          if(ok){
+            if(dir==='H'){if((c>0&&grid[r][c-1])||(c+entry.word.length<N&&grid[r][c+entry.word.length]))ok=false;}
+            else{if((r>0&&grid[r-1][c])||(r+entry.word.length<N&&grid[r+entry.word.length]&&grid[r+entry.word.length][c]))ok=false;}
+          }
+          if(ok&&score>bestScore){bestScore=score;best={r,c,dir};}
+        }
+      }
+    }
+    if(best){
+      for(let k=0;k<entry.word.length;k++){
+        const nr=best.dir==='H'?best.r:best.r+k;
+        const nc=best.dir==='H'?best.c+k:best.c;
+        grid[nr][nc]=entry.word[k];
+      }
+      placed.push({word:entry.word,def:entry.def,row:best.r,col:best.c,dir:best.dir,num:num++});
+    }
+  }
+
+  // trim
+  let minR=N,maxR=0,minC=N,maxC=0;
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(grid[r][c]){minR=Math.min(minR,r);maxR=Math.max(maxR,r);minC=Math.min(minC,c);maxC=Math.max(maxC,c);}
+  minR=Math.max(0,minR-1);maxR=Math.min(N-1,maxR+1);minC=Math.max(0,minC-1);maxC=Math.min(N-1,maxC+1);
+
+  cwGrid=grid;cwPlaced=placed;cwBounds={minR,maxR,minC,maxC};
+  renderCWDisplay();
+  document.getElementById('cw-result').style.display='block';
+  document.getElementById('cw-result-title').textContent=getMeta().title;
+}
+
+function renderCWDisplay(){
+  const{minR,maxR,minC,maxC}=cwBounds;
+  const numMap={};cwPlaced.forEach(p=>numMap[p.row+','+p.col]=p.num);
+  let html='<table class="cw-table">';
+  for(let r=minR;r<=maxR;r++){
+    html+='<tr>';
+    for(let c=minC;c<=maxC;c++){
+      if(cwGrid[r][c]){
+        const n=numMap[r+','+c]?`<span class="cw-num">${numMap[r+','+c]}</span>`:'';
+        html+=`<td class="lt">${n}</td>`;
+      }else html+='<td class="blk"></td>';
+    }
+    html+='</tr>';
+  }
+  html+='</table>';
+  document.getElementById('cw-grid-wrap').innerHTML=html;
+
+  const across=cwPlaced.filter(p=>p.dir==='H').sort((a,b)=>a.num-b.num);
+  const down=cwPlaced.filter(p=>p.dir==='V').sort((a,b)=>a.num-b.num);
+  document.getElementById('cw-clues').innerHTML=
+    `<div class="clues-col"><h4>➡️ Across</h4>${across.map(p=>`<div class="clue"><b>${p.num}.</b> ${p.def}</div>`).join('')}</div>
+     <div class="clues-col"><h4>⬇️ Down</h4>${down.map(p=>`<div class="clue"><b>${p.num}.</b> ${p.def}</div>`).join('')}</div>`;
+}
+
+// ══ SAVE ══
+function savePuzzle(type){
+  const meta=getMeta();
+  if(type==='ws'){
+    if(!wsWords.length){alert('Add words first!');return;}
+    if(!wsGrid.length||!wsGrid[0]||!wsGrid[0].length){alert('Generate the puzzle first!');return;}
+  } else {
+    if(!cwWords.length){alert('Add words first!');return;}
+    if(!cwPlaced.length){alert('Generate the puzzle first!');return;}
+  }
+  const data=type==='ws'
+    ?{type:'ws',words:[...wsWords],grid:wsGrid.map(r=>[...r]),size:wsSize,placed:JSON.parse(JSON.stringify(wsPlaced))}
+    :{type:'cw',words:JSON.parse(JSON.stringify(cwWords)),grid:cwGrid.map(r=>[...r]),bounds:{...cwBounds},placed:JSON.parse(JSON.stringify(cwPlaced))};
+  const entry={id:Date.now(),meta,...data};
+  savedPuzzles.unshift(entry);
+  localStorage.setItem('puzzles_saved',JSON.stringify(savedPuzzles));
+  alert('✅ Saved: '+meta.title+(meta.cls?' ('+meta.cls+')':''));
+}
+
+// ══ SAVED LIST ══
+function renderSavedList(){
+  const list=document.getElementById('saved-list');
+  const empty=document.getElementById('saved-empty');
+  if(!savedPuzzles.length){list.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  list.innerHTML=savedPuzzles.map((p,i)=>`
+    <div class="saved-item" onclick="loadSaved(${i})">
+      <span class="saved-type">${p.type==='ws'?'🔍 WS':'📝 CW'}</span>
+      <div class="saved-meta">
+        <div class="saved-title">${p.meta.title}</div>
+        <div class="saved-info">📚 ${p.meta.cls||'—'} &nbsp;|&nbsp; 👤 ${p.meta.teacher||'—'} &nbsp;|&nbsp; 📅 ${p.meta.date}</div>
+      </div>
+      <button class="btn btn-purple btn-sm" onclick="event.stopPropagation();previewSaved(${i})">👁️</button>
+      <button class="saved-del" onclick="event.stopPropagation();deleteSaved(${i})">🗑️</button>
+    </div>`).join('');
+}
+
+function loadSaved(i){
+  const p=savedPuzzles[i];
+  document.getElementById('meta-title').value=p.meta.title;
+  document.getElementById('meta-class').value=p.meta.cls;
+  document.getElementById('meta-teacher').value=p.meta.teacher;
+  document.getElementById('meta-date').value=p.meta.date;
+  if(p.type==='ws'){
+    wsWords=[...p.words];wsGrid=p.grid;wsSize=p.size;wsPlaced=p.placed;wsFound=new Set();
+    renderWsWords();renderWSGrid();
+    document.getElementById('ws-result').style.display='block';
+    document.getElementById('ws-result-title').textContent=p.meta.title;
+    renderWsFoundRow();setPuzzleType('ws');
+  } else {
+    cwWords=p.words.map(w=>({...w}));cwGrid=p.grid;cwBounds=p.bounds;cwPlaced=p.placed;
+    renderCwWords();renderCWDisplay();
+    document.getElementById('cw-result').style.display='block';
+    document.getElementById('cw-result-title').textContent=p.meta.title;
+    setPuzzleType('cw');
+  }
+  document.querySelectorAll('.tab-page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-create').classList.add('active');
+  document.querySelectorAll('.tab-btn')[0].classList.add('active');
+}
+
+function deleteSaved(i){
+  if(!confirm('Delete this puzzle?'))return;
+  savedPuzzles.splice(i,1);
+  localStorage.setItem('puzzles_saved',JSON.stringify(savedPuzzles));
+  renderSavedList();renderExportList();
+}
+
+// ══ EXPORT LIST ══
+let exportSelected=new Set();
+function renderExportList(){
+  const list=document.getElementById('export-list');
+  const empty=document.getElementById('export-empty');
+  if(!savedPuzzles.length){list.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  list.innerHTML=savedPuzzles.map((p,i)=>`
+    <div class="saved-item ${exportSelected.has(i)?'selected':''}" onclick="toggleExportSel(${i},this)">
+      <input type="checkbox" ${exportSelected.has(i)?'checked':''} style="width:20px;height:20px;accent-color:var(--gold);flex-shrink:0;cursor:pointer" onclick="event.stopPropagation();toggleExportSel(${i},this.closest('.saved-item'))"/>
+      <span class="saved-type">${p.type==='ws'?'🔍 WS':'📝 CW'}</span>
+      <div class="saved-meta">
+        <div class="saved-title">${p.meta.title}</div>
+        <div class="saved-info">📚 ${p.meta.cls||'—'} &nbsp;|&nbsp; 📅 ${p.meta.date} &nbsp;|&nbsp; ${p.words.length} words</div>
+      </div>
+      <button class="btn btn-green btn-sm" onclick="event.stopPropagation();exportSingle(${i})">📄</button>
+    </div>`).join('');
+  updateExportCount();
+}
+function toggleExportSel(i,el){
+  if(exportSelected.has(i))exportSelected.delete(i);else exportSelected.add(i);
+  el.classList.toggle('selected',exportSelected.has(i));
+  el.querySelector('input').checked=exportSelected.has(i);
+}
+function selectAllExport(){
+  savedPuzzles.forEach((_,i)=>exportSelected.add(i));
+  renderExportList();
+}
+function deselectAllExport(){
+  exportSelected.clear();
+  renderExportList();
+}
+function updateExportCount(){
+  const el=document.getElementById('export-count');
+  if(el)el.textContent=exportSelected.size+' puzzle(s) selected';
+}
+
+// ══ ENTETE HTML ══
+function buildEntete(meta,puzzleTitle){
+  return `<div class="preview-entete">
+    <div class="preview-entete-title">${puzzleTitle}</div>
+    <div class="preview-entete-grid">
+      <div class="preview-entete-cell">🏫 <strong>Class:</strong> ${meta.cls||'—'}</div>
+      <div class="preview-entete-cell">📅 <strong>Date:</strong> ${meta.date}</div>
+      <div class="preview-entete-cell">👤 <strong>Teacher:</strong> ${meta.teacher||'—'}</div>
+      <div class="preview-entete-cell">✏️ <strong>Name:</strong> ___________________</div>
+    </div>
+  </div>`;
+}
+
+// ══ PREVIEW ══
+function previewPuzzle(type){
+  previewTarget={type,current:true};
+  const meta=getMeta();
+  let html='<div class="preview-box">';
+  if(type==='ws'){
+    if(!wsGrid.length||!wsGrid[0]||!wsGrid[0].length){alert('Generate the puzzle first!');return;}
+    html+=buildEntete(meta,'🔍 Word Search — '+meta.title);
+    html+=buildWSPreview(wsGrid,wsSize,wsPlaced);
+  } else {
+    if(!cwGrid.length){alert('Generate the puzzle first!');return;}
+    html+=buildEntete(meta,'📝 Crossword — '+meta.title);
+    html+=buildCWPreview(cwGrid,cwBounds,cwPlaced);
+  }
+  html+='</div>';
+  document.getElementById('preview-content').innerHTML=html;
+  document.getElementById('preview-modal').classList.add('open');
+}
+function previewSaved(i){
+  previewTarget={type:'saved',idx:i};
+  const p=savedPuzzles[i];
+  let html='<div class="preview-box">';
+  if(p.type==='ws'){
+    html+=buildEntete(p.meta,'🔍 Word Search — '+p.meta.title);
+    html+=buildWSPreview(p.grid,p.size,p.placed);
+  } else {
+    html+=buildEntete(p.meta,'📝 Crossword — '+p.meta.title);
+    html+=buildCWPreview(p.grid,p.bounds,p.placed);
+  }
+  html+='</div>';
+  document.getElementById('preview-content').innerHTML=html;
+  document.getElementById('preview-modal').classList.add('open');
+}
+function previewExport(){
+  if(!exportSelected.size){alert('Select at least one puzzle!');return;}
+  previewTarget={type:'multi'};
+  let html='';
+  [...exportSelected].sort().forEach((i,idx)=>{
+    const p=savedPuzzles[i];
+    if(idx>0)html+='<hr style="border:2px dashed #ccc;margin:20px 0"/>';
+    html+='<div class="preview-box" style="margin-bottom:10px">';
+    if(p.type==='ws'){
+      html+=buildEntete(p.meta,'🔍 Word Search — '+p.meta.title);
+      html+=buildWSPreview(p.grid,p.size,p.placed);
+    } else {
+      html+=buildEntete(p.meta,'📝 Crossword — '+p.meta.title);
+      html+=buildCWPreview(p.grid,p.bounds,p.placed);
+    }
+    html+='</div>';
+  });
+  document.getElementById('preview-content').innerHTML=html;
+  document.getElementById('preview-modal').classList.add('open');
+}
+function closePreview(){document.getElementById('preview-modal').classList.remove('open');}
+function exportFromPreview(){
+  closePreview();
+  if(previewTarget.type==='multi')doExport();
+  else if(previewTarget.type==='saved')exportSingle(previewTarget.idx);
+  else exportCurrent(previewTarget.type);
+}
+
+function buildWSPreview(grid,size,placed){
+  let html='<div class="preview-grid-wrap"><table style="border-collapse:collapse;margin:0 auto">';
+  for(let r=0;r<size;r++){
+    html+='<tr>';
+    for(let c=0;c<size;c++)
+      html+=`<td class="p-ws-td">${grid[r][c]}</td>`;
+    html+='</tr>';
+  }
+  html+='</table></div>';
+  html+='<div style="margin-top:10px;font-size:9pt"><strong>Word List:</strong><br/>';
+  html+=placed.map((p,i)=>`<span style="display:inline-block;margin:2px 8px;font-weight:bold">${i+1}. ${p.word}</span>`).join('');
+  html+='</div>';
+  return html;
+}
+
+function buildCWPreview(grid,bounds,placed){
+  const{minR,maxR,minC,maxC}=bounds;
+  const numMap={};placed.forEach(p=>numMap[p.row+','+p.col]=p.num);
+  let html='<div class="preview-grid-wrap"><table style="border-collapse:collapse;margin:0 auto">';
+  for(let r=minR;r<=maxR;r++){
+    html+='<tr>';
+    for(let c=minC;c<=maxC;c++){
+      if(grid[r][c]){
+        const n=numMap[r+','+c]?`<sup style="font-size:6pt;color:#8b5e34">${numMap[r+','+c]}</sup>`:'';
+        html+=`<td class="p-cw-td">${n}</td>`;
+      } else html+=`<td class="p-cw-td p-cw-blk"></td>`;
+    }
+    html+='</tr>';
+  }
+  html+='</table></div>';
+  const across=placed.filter(p=>p.dir==='H').sort((a,b)=>a.num-b.num);
+  const down=placed.filter(p=>p.dir==='V').sort((a,b)=>a.num-b.num);
+  html+=`<div style="display:flex;gap:16px;margin-top:10px;font-size:9pt">
+    <div><strong>➡️ Across</strong>${across.map(p=>`<div><b>${p.num}.</b> ${p.def}</div>`).join('')}</div>
+    <div><strong>⬇️ Down</strong>${down.map(p=>`<div><b>${p.num}.</b> ${p.def}</div>`).join('')}</div>
+  </div>`;
+  return html;
+}
+
+// ══ WORD DOC EXPORT ══
+function buildWordEntete(meta,puzzleTitle){
+  return `<div style="border:2px solid #8b5e34;border-radius:6px;overflow:hidden;margin-bottom:16px;">
+    <div style="background:#8b5e34;color:white;text-align:center;padding:9px;font-size:13pt;font-weight:bold;">${puzzleTitle}</div>
+    <table style="width:100%;border-collapse:collapse;">
+      <tr>
+        <td style="padding:6px 12px;border-bottom:1px solid #e0c8a8;border-left:1px solid #e0c8a8;background:#fffaf4;font-size:10pt;width:50%">🏫 <strong>Class:</strong> ${meta.cls||'—'}</td>
+        <td style="padding:6px 12px;border-bottom:1px solid #e0c8a8;background:#fff5e8;font-size:10pt">📅 <strong>Date:</strong> ${meta.date}</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 12px;border-left:1px solid #e0c8a8;background:#fffaf4;font-size:10pt">👤 <strong>Teacher:</strong> ${meta.teacher||'—'}</td>
+        <td style="padding:6px 12px;background:#fff5e8;font-size:10pt">✏️ <strong>Name:</strong> ___________________</td>
+      </tr>
+    </table>
+  </div>`;
+}
+
+function buildWSWordDoc(p){
+  let html=buildWordEntete(p.meta,'🔍 Word Search — '+p.meta.title);
+  html+='<table style="border-collapse:collapse;margin:0 auto 14px">';
+  for(let r=0;r<p.size;r++){
+    html+='<tr>';
+    for(let c=0;c<p.size;c++)
+      html+=`<td style="width:22px;height:22px;text-align:center;border:1px solid #ccc;font-family:monospace;font-weight:bold;font-size:10pt">${p.grid[r][c]}</td>`;
+    html+='</tr>';
+  }
+  html+='</table>';
+  html+='<div style="border:1px solid #ddd;border-radius:6px;padding:10px;margin-top:8px"><strong style="font-size:10pt">📋 Word List:</strong><br/>';
+  html+=p.placed.map((w,i)=>`<span style="display:inline-block;margin:3px 10px;font-weight:bold;font-size:10pt">${i+1}. ${w.word}</span>`).join('');
+  html+='</div>';
+  // answer key
+  html+='<div style="page-break-before:always"></div>';
+  html+=buildWordEntete(p.meta,'✅ Answer Key — '+p.meta.title);
+  html+='<table style="border-collapse:collapse;margin:0 auto">';
+  const placed_set=new Set(p.placed.flatMap(w=>w.cells.map(([r,c])=>r+','+c)));
+  for(let r=0;r<p.size;r++){
+    html+='<tr>';
+    for(let c=0;c<p.size;c++){
+      const isWord=placed_set.has(r+','+c);
+      html+=`<td style="width:22px;height:22px;text-align:center;border:1px solid #ccc;font-family:monospace;font-weight:bold;font-size:10pt;${isWord?'background:#d4f5e4;color:#1a6040;':''}">${p.grid[r][c]}</td>`;
+    }
+    html+='</tr>';
+  }
+  html+='</table>';
+  return html;
+}
+
+function buildCWWordDoc(p){
+  const{minR,maxR,minC,maxC}=p.bounds;
+  const numMap={};p.placed.forEach(w=>numMap[w.row+','+w.col]=w.num);
+  let html=buildWordEntete(p.meta,'📝 Crossword — '+p.meta.title);
+  html+='<table style="border-collapse:collapse;margin:0 auto 14px">';
+  for(let r=minR;r<=maxR;r++){
+    html+='<tr>';
+    for(let c=minC;c<=maxC;c++){
+      if(p.grid[r][c]){
+        const n=numMap[r+','+c]?`<sup style="font-size:6pt;color:#8b5e34">${numMap[r+','+c]}</sup>`:'';
+        html+=`<td style="width:24px;height:24px;border:1.5px solid #555;text-align:center;background:#fff;font-size:7pt">${n}</td>`;
+      } else html+=`<td style="width:24px;height:24px;background:#222;border:1px solid #111"></td>`;
+    }
+    html+='</tr>';
+  }
+  html+='</table>';
+  const across=p.placed.filter(w=>w.dir==='H').sort((a,b)=>a.num-b.num);
+  const down=p.placed.filter(w=>w.dir==='V').sort((a,b)=>a.num-b.num);
+  html+=`<table style="width:100%;border-collapse:collapse;margin-top:12px">
+    <tr>
+      <td style="width:50%;vertical-align:top;padding-left:10px">
+        <div style="color:#8b5e34;font-weight:bold;font-size:10pt;margin-bottom:5px;border-bottom:1px solid #ddd;padding-bottom:3px">➡️ ACROSS</div>
+        ${across.map(w=>`<div style="font-size:9.5pt;padding:2px 0"><b>${w.num}.</b> ${w.def}</div>`).join('')}
+      </td>
+      <td style="width:50%;vertical-align:top;padding-right:10px;border-right:1px solid #ddd">
+        <div style="color:#8b5e34;font-weight:bold;font-size:10pt;margin-bottom:5px;border-bottom:1px solid #ddd;padding-bottom:3px">⬇️ DOWN</div>
+        ${down.map(w=>`<div style="font-size:9.5pt;padding:2px 0"><b>${w.num}.</b> ${w.def}</div>`).join('')}
+      </td>
+    </tr>
+  </table>`;
+  // answer key
+  html+='<div style="page-break-before:always"></div>';
+  html+=buildWordEntete(p.meta,'✅ Answer Key — '+p.meta.title);
+  html+='<table style="border-collapse:collapse;margin:0 auto">';
+  for(let r=minR;r<=maxR;r++){
+    html+='<tr>';
+    for(let c=minC;c<=maxC;c++){
+      if(p.grid[r][c])
+        html+=`<td style="width:24px;height:24px;border:1.5px solid #555;text-align:center;background:#d4f5e4;font-weight:bold;font-size:9pt;color:#1a6040">${p.grid[r][c]}</td>`;
+      else html+=`<td style="width:24px;height:24px;background:#222;border:1px solid #111"></td>`;
+    }
+    html+='</tr>';
+  }
+  html+='</table>';
+  return html;
+}
+
+function wrapWordDoc(bodyHTML){
+  return `<html><head><meta charset="utf-8"><style>
+    @page{margin:18mm 14mm;}
+    body{font-family:Arial,sans-serif;direction:ltr;font-size:10.5pt;color:#222;}
+    .footer{margin-top:12px;font-size:8pt;color:#aaa;text-align:center;border-top:1px solid #eee;padding-top:5px;}
+  </style></head><body>${bodyHTML}<div class="footer">${new Date().toLocaleDateString()}</div></body></html>`;
+}
+
+function doExport(){
+  if(!exportSelected.size){alert('Select at least one puzzle!');return;}
+  const pages=[...exportSelected].sort().map(i=>{
+    const p=savedPuzzles[i];
+    return p.type==='ws'?buildWSWordDoc(p):buildCWWordDoc(p);
+  });
+  const html=wrapWordDoc(pages.join('<div style="page-break-before:always"></div>'));
+  downloadWord(html,'Puzzles_Export');
+}
+function exportSingle(i){
+  const p=savedPuzzles[i];
+  const html=wrapWordDoc(p.type==='ws'?buildWSWordDoc(p):buildCWWordDoc(p));
+  downloadWord(html,p.meta.title.replace(/\s+/g,'_'));
+}
+function exportCurrent(type){
+  const meta=getMeta();
+  const fakeP=type==='ws'?{meta,type:'ws',words:wsWords,grid:wsGrid,size:wsSize,placed:wsPlaced}:{meta,type:'cw',words:cwWords,grid:cwGrid,bounds:cwBounds,placed:cwPlaced};
+  const html=wrapWordDoc(type==='ws'?buildWSWordDoc(fakeP):buildCWWordDoc(fakeP));
+  downloadWord(html,meta.title.replace(/\s+/g,'_'));
+}
+function downloadWord(html,name){
+  const blob=new Blob(['\ufeff'+html],{type:'application/msword;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=name+'.doc';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
