@@ -29,7 +29,7 @@ body{font-family:'Amiri',Arial,serif;background:var(--bg);color:var(--text);min-
 .logo{font-size:1.6rem;}
 .app-title{font-size:1.15rem;font-weight:700;color:var(--gold2);font-family:'Playfair Display',serif;}
 .app-sub{font-size:0.7rem;color:var(--text2);}
-.hbtns{margin-left:auto;display:flex;gap:7px;align-items:center;flex-wrap:wrap;}
+.hbtns{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}
 
 /* TABS */
 .tabs{display:flex;background:var(--surface);border-bottom:2px solid var(--border);}
@@ -85,9 +85,9 @@ body.light .ws-tbl td.found{background:#c0f0d8;}
 
 .cw-tbl{border-collapse:collapse;margin:0 auto;}
 .cw-tbl td{width:var(--ccs,30px);height:var(--ccs,30px);text-align:center;vertical-align:middle;font-weight:700;font-family:monospace;border:1.5px solid var(--border);color:var(--text);font-size:calc(var(--ccs,30px)*.4);position:relative;}
-.cw-tbl td.blk{background:#000c1a;border-color:#000;} 
+.cw-tbl td.blk{background:#222222;border:2px solid #111111;} 
 body.light .cw-tbl td{background:#fff;}
-body.light .cw-tbl td.blk{background:#222;border-color:#000;}
+body.light .cw-tbl td.blk{background:#222222;border:2px solid #111111;}
 .cw-num{position:absolute;top:1px;right:2px;font-size:0.4rem;color:var(--gold);font-family:sans-serif;line-height:1;}
 
 /* FOUND BADGES */
@@ -141,15 +141,23 @@ body.light .cw-tbl td.blk{background:#222;border-color:#000;}
 
 <div class="header">
   <div class="logo">🧩</div>
-  <div>
+  <div style="flex:1">
     <div class="app-title">Puzzles</div>
     <div class="app-sub">Word Search · Crossword</div>
   </div>
-  <div class="hbtns">
-    <button class="btn btn-green btn-sm" onclick="exportJSON()">⬇️ Backup</button>
-    <button class="btn btn-blue btn-sm" onclick="document.getElementById('imp-json').click()">⬆️ Restore</button>
-    <input type="file" id="imp-json" accept=".json" style="display:none" onchange="importJSON(event)"/>
-    <button id="theme-btn" onclick="toggleTheme()" style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:5px 9px;cursor:pointer;font-size:1rem;color:var(--text);">☀️</button>
+  <button id="theme-btn" onclick="toggleTheme()" style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:6px 10px;cursor:pointer;font-size:1.1rem;color:var(--text);">☀️</button>
+  <button class="btn btn-outline btn-sm" onclick="toggleSettingsPanel()" title="Settings">⚙️</button>
+</div>
+
+<!-- SETTINGS PANEL -->
+<div id="settings-panel" style="display:none;background:var(--surface);border-bottom:2px solid var(--border);padding:12px 14px;box-shadow:0 2px 12px #00000033;">
+  <div style="max-width:920px;margin:0 auto">
+    <div style="color:var(--text2);font-size:0.76rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:9px;font-weight:700">⚙️ Settings & Data</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-green btn-sm" onclick="exportJSON()">💾 Backup JSON</button>
+      <button class="btn btn-blue btn-sm" onclick="document.getElementById('imp-json').click()">📂 Restore JSON</button>
+      <input type="file" id="imp-json" accept=".json" style="display:none" onchange="importJSON(event)"/>
+    </div>
   </div>
 </div>
 
@@ -185,11 +193,11 @@ body.light .cw-tbl td.blk{background:#222;border-color:#000;}
         <div class="fr" style="margin-bottom:11px">
           <div class="fg">
             <label>Grid Width</label>
-            <input type="number" id="ws-cols" min="8" max="25" value="12" style="font-family:monospace" oninput="this.value=Math.max(8,Math.min(25,parseInt(this.value)||12))"/>
+            <input type="number" id="ws-cols" min="5" max="30" value="12" style="font-family:monospace"/>
           </div>
           <div class="fg">
             <label>Grid Height</label>
-            <input type="number" id="ws-rows" min="8" max="25" value="12" style="font-family:monospace" oninput="this.value=Math.max(8,Math.min(25,parseInt(this.value)||12))"/>
+            <input type="number" id="ws-rows" min="5" max="30" value="12" style="font-family:monospace"/>
           </div>
           <div class="fg">
             <label>Directions</label>
@@ -340,6 +348,10 @@ document.getElementById('ws-show-words').addEventListener('change',function(){
 });
 
 // ═══ THEME ═══
+function toggleSettingsPanel(){
+  const p=document.getElementById('settings-panel');
+  p.style.display=p.style.display==='none'?'block':'none';
+}
 function toggleTheme(){
   isDark=!isDark;
   document.body.classList.toggle('light',!isDark);
@@ -393,8 +405,8 @@ function clearWS(){wsWords=[];renderWsWords();document.getElementById('ws-res').
 
 function generateWS(){
   if(!wsWords.length){alert('Add words first!');return;}
-  wsRows=Math.max(8,Math.min(25,parseInt(document.getElementById('ws-rows').value,10)||12));
-  wsCols=Math.max(8,Math.min(25,parseInt(document.getElementById('ws-cols').value,10)||12));
+  wsRows=Math.max(5,Math.min(30,parseInt(document.getElementById('ws-rows').value,10)||12));
+  wsCols=Math.max(5,Math.min(30,parseInt(document.getElementById('ws-cols').value,10)||12));
   console.log('Generating WS:', wsRows, 'x', wsCols);
   const allDirs=document.getElementById('ws-dirs').value==='all';
   wsGrid=[];wsPlaced=[];wsFound=new Set();
@@ -598,7 +610,7 @@ function renderCWDisplay(){
 // ═══ SAVE ═══
 function savePuzzle(type){
   const meta=getMeta();
-  if(type==='ws'){if(!wsWords.length||!wsGrid.length||!wsGrid[0]?.length){alert('Generate first!');return;}}
+  if(type==='ws'){if(!wsGrid.length||!wsGrid[0]||!wsGrid[0].length||!wsGrid[0].some(function(x){return x!=='';})){ alert('Generate first!');return;}}
   else{if(!cwWords.length||!cwPlaced.length){alert('Generate first!');return;}}
   const showWords=type==='ws'?document.getElementById('ws-show-words').checked:true;
   const data=type==='ws'
@@ -701,7 +713,7 @@ function previewNow(type){
   const meta=getMeta();
   let html;
   if(type==='ws'){
-    if(!wsGrid.length||!wsGrid[0]?.length){alert('Generate first!');return;}
+    if(!wsGrid.length||!wsGrid[0]||!wsGrid.some(function(row){return row.some(function(cell){return cell!=='';});})){alert('Generate first!');return;}
     html=buildPreviewWS({meta,grid:wsGrid,rows:wsRows,cols:wsCols,placed:wsPlaced,showWords:document.getElementById('ws-show-words').checked});
   }else{
     if(!cwPlaced.length){alert('Generate first!');return;}
@@ -774,7 +786,7 @@ function buildPreviewCW(p){
       if(p.grid[r][c]){
         const n=nm[r+','+c]?`<sup style="font-size:6pt;color:#8b5e34">${nm[r+','+c]}</sup>`:'';
         html+=`<td style="width:22px;height:22px;border:1.5px solid #555;text-align:center;background:#fff;font-size:7pt">${n}</td>`;
-      }else html+=`<td style="width:22px;height:22px;background:#222;border:1px solid #000"></td>`;
+      }else html+=`<td style="width:22px;height:22px;background:#333;border:1.5px solid #444"></td>`;
     }
     html+='</tr>';
   }
@@ -841,7 +853,7 @@ function buildWordDoc(p){
         if(p.grid[r][c]){
           const n=nm[r+','+c]?`<sup style="font-size:6pt;color:#8b5e34">${nm[r+','+c]}</sup>`:'';
           html+=`<td style="width:24px;height:24px;border:1.5px solid #555;text-align:center;background:#fff;font-size:7pt">${n}</td>`;
-        }else html+=`<td style="width:24px;height:24px;background:#fff;border:1.5px solid #fff;"><div style="width:100%;height:100%;background:#222"></div></td>`;
+        }else html+=`<td style="width:24px;height:24px;background:#333;border:1.5px solid #333;"></td>`;
       }
       html+='</tr>';
     }
@@ -892,10 +904,10 @@ function exportImage(type){
   const meta=getMeta();
   const canvas=document.createElement('canvas');
   const ctx=canvas.getContext('2d');
-  const CELL=32, PAD=24, ENTETE_H=110;
+  const CELL=32, PAD=22, ENTETE_H=115;
 
   if(type==='ws'){
-    if(!wsGrid.length||!wsGrid[0]?.length){alert('Generate first!');return;}
+    if(!wsGrid.length||!wsGrid[0]||!wsGrid.some(function(row){return row.some(function(cell){return cell!=='';});})){alert('Generate first!');return;}
     const W=wsCols*CELL+PAD*2;
     const wordListH=document.getElementById('ws-show-words').checked?Math.ceil(wsPlaced.length/3)*22+36:28;
     const H=ENTETE_H+wsRows*CELL+PAD+wordListH+PAD;
@@ -959,7 +971,8 @@ function exportImage(type){
           const n=nm[r+','+c2];
           if(n){ctx.fillStyle='#8b5e34';ctx.font='7px Arial';ctx.textAlign='left';ctx.fillText(n,x+2,y+8);}
         } else {
-          ctx.fillStyle='#222'; ctx.fillRect(x,y,CELL,CELL);
+          ctx.fillStyle='#444'; ctx.fillRect(x,y,CELL,CELL);
+          ctx.strokeStyle='#222';ctx.lineWidth=1;ctx.strokeRect(x,y,CELL,CELL);
         }
       }
     }
