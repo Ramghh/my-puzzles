@@ -243,11 +243,11 @@ body.light .cw-tbl td.blk{background:#222222;border:2px solid #111111;}
         <div class="card-title">🔍 <span id="ws-res-title"></span></div>
         <div style="display:flex;gap:7px;margin-bottom:9px;flex-wrap:wrap">
           <button class="btn btn-blue btn-sm" onclick="shuffleHL()">🔀 Shuffle hidden</button>
-          <button class="btn btn-green btn-sm" onclick="exportImage('ws-capture')">🖼️ Export Image</button>
+          <button class="btn btn-green btn-sm" onclick="exportImage('ws')">🖼️ Export Image</button>
         </div>
         <div id="ws-capture">
         <div class="gscroll" id="ws-grid-wrap"></div>
-        </div><!-- end ws-capture -->
+        </div>
         <div class="fbrow" id="ws-found-row"></div>
         <p style="color:var(--text2);font-size:0.74rem;margin-top:7px">💡 Tap and drag to find words</p>
       </div>
@@ -279,7 +279,7 @@ body.light .cw-tbl td.blk{background:#222222;border:2px solid #111111;}
 
       <div class="card" id="cw-res" style="display:none">
         <div class="card-title">📝 <span id="cw-res-title"></span></div>
-        <button class="btn btn-green btn-sm" onclick="exportImage('cw-capture')" style="margin-bottom:8px">🖼️ Export Image</button>
+        <button class="btn btn-green btn-sm" onclick="exportImage('cw')">🖼️ Export Image</button>
         <div id="cw-capture">
         <div class="gscroll" id="cw-grid-wrap"></div>
         <div class="cw-cols" id="cw-clues"></div>
@@ -338,14 +338,12 @@ body.light .cw-tbl td.blk{background:#222222;border:2px solid #111111;}
 
 <script>
 // ═══ INIT & THEME FIX ═══
-// التأكد من قراءة الثيم من localStorage فوراً قبل أي شيء
 let isDark = localStorage.getItem('pz_theme') !== 'light';
 function applyTheme() {
   document.body.classList.toggle('light', !isDark);
   const themeBtn = document.getElementById('theme-btn');
   if (themeBtn) themeBtn.textContent = isDark ? '☀️' : '🌙';
 }
-// تطبيق الثيم فوراً عند تحميل الصفحة
 applyTheme();
 
 let puzzleType = 'ws';
@@ -359,12 +357,10 @@ let modalExportTarget = null;
 
 document.getElementById('m-date').value = new Date().toISOString().split('T')[0];
 
-// show/hide words toggle
 document.getElementById('ws-show-words').addEventListener('change', function() {
   document.getElementById('ws-show-label').textContent = this.checked ? 'Shown' : 'Hidden';
 });
 
-// ═══ TOAST WITH LOADER ═══
 function showToast(msg, isError = false, isLoading = false) {
   const t = document.getElementById('toast');
   if (!t) return;
@@ -379,7 +375,6 @@ function showToast(msg, isError = false, isLoading = false) {
   t._timer = setTimeout(() => t.classList.remove('show'), isLoading ? 2000 : 2500);
 }
 
-// ═══ TABS, SETTINGS ═══
 function toggleSettingsPanel() {
   const p = document.getElementById('settings-panel');
   p.style.display = p.style.display === 'none' ? 'block' : 'none';
@@ -624,7 +619,7 @@ function renderCWDisplay() {
       if (cwGrid[r][c]) { const n = nm[r + ',' + c] ? `<span class="cw-num">${nm[r + ',' + c]}</span>` : ''; html += `<td>${n}</td>`; }
       else html += '<td class="blk"></td>';
     }
-    html += '<tr>';
+    html += '</tr>';
   }
   html += '</table>';
   document.getElementById('cw-grid-wrap').innerHTML = html;
@@ -803,12 +798,12 @@ function buildPreviewCW(p) {
   let html = buildEntete(p.meta, '📝 Crossword — ' + p.meta.title);
   html += '<div style="overflow-x:auto;text-align:center;margin:10px 0"><table style="border-collapse:collapse;margin:0 auto">';
   for (let r = minR; r <= maxR; r++) {
-    html += '</tr>';
+    html += '<tr>';
     for (let c = minC; c <= maxC; c++) {
       if (p.grid[r][c]) {
         const n = nm[r + ',' + c] ? `<sup style="font-size:6pt;color:#8b5e34">${nm[r + ',' + c]}</sup>` : '';
         html += `<td style="width:22px;height:22px;border:1.5px solid #555;text-align:center;background:#fff;font-size:7pt">${n}</td>`;
-      } else html += `<td style="width:22px;height:22px;background:#333;border:1.5px solid #444"></table>`;
+      } else html += `<td style="width:22px;height:22px;background:#333;border:1.5px solid #444"></td>`;
     }
     html += '</tr>';
   }
@@ -816,11 +811,11 @@ function buildPreviewCW(p) {
   const across = p.placed.filter(w => w.dir === 'H').sort((a, b) => a.num - b.num);
   const down = p.placed.filter(w => w.dir === 'V').sort((a, b) => a.num - b.num);
   html += `<table style="width:100%;border-collapse:collapse;margin-top:10px;font-size:9pt">
-    <tr>
+    </tr>
       <td style="vertical-align:top;padding-left:8px;width:50%">
         <strong style="color:#8b5e34">➡️ ACROSS</strong><br/>
         ${across.map(w => `<div><b>${w.num}.</b> ${w.def}</div>`).join('')}
-      </td>
+      <tr>
       <td style="vertical-align:top;padding-right:8px;border-right:1px solid #ddd;width:50%">
         <strong style="color:#8b5e34">⬇️ DOWN</strong><br/>
         ${down.map(w => `<div><b>${w.num}.</b> ${w.def}</div>`).join('')}
@@ -855,7 +850,7 @@ function buildWordDoc(p) {
       for (let c = 0; c < p.cols; c++) html += `<td style="width:22px;height:22px;text-align:center;border:1px solid #aaa;font-family:monospace;font-weight:bold;font-size:9.5pt;background:#fff">${p.grid[r][c]}</td>`;
       html += '</tr>';
     }
-    html += '</table>';
+    html += '<table>';
     if (p.showWords !== false) {
       html += '<div style="border:1px solid #ddd;border-radius:5px;padding:10px;margin-top:8px;background:#fff">';
       html += '<strong style="font-size:10pt">📋 Find the following words:</strong><br/>';
@@ -869,7 +864,7 @@ function buildWordDoc(p) {
     const nm = {}; p.placed.forEach(w => nm[w.row + ',' + w.col] = w.num);
     html += '<table style="border-collapse:collapse;margin:0 auto 14px;background:#fff">';
     for (let r = minR; r <= maxR; r++) {
-      html += '</table>';
+      html += '<tr>';
       for (let c = minC; c <= maxC; c++) {
         if (p.grid[r][c]) {
           const n = nm[r + ',' + c] ? `<sup style="font-size:6pt;color:#8b5e34">${nm[r + ',' + c]}</sup>` : '';
@@ -924,14 +919,18 @@ function doExport() {
   exportDoc(pages.join('<div style="page-break-before:always"></div>'), 'Puzzles_Export_' + new Date().toISOString().slice(0, 10));
 }
 
-// ═══ EXPORT IMAGE ═══
-function exportImage(type) {
+// ═══ EXPORT IMAGE (FIXED) ═══
+function exportImage(type) {  // type = 'ws' or 'cw'
   const meta = getMeta();
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
   const CELL = 32, PAD = 22, ENTETE_H = 115;
+
   if (type === 'ws') {
-    if (!wsGrid.length || !wsGrid[0] || !wsGrid.some(function (row) { return row.some(function (cell) { return cell !== ''; }); })) { alert('Generate first!'); return; }
+    if (!wsGrid.length || !wsGrid[0] || wsGrid.every(row => row.every(cell => cell === ''))) {
+      alert('Generate first!');
+      return;
+    }
     const W = wsCols * CELL + PAD * 2;
     const wordListH = document.getElementById('ws-show-words').checked ? Math.ceil(wsPlaced.length / 3) * 22 + 36 : 28;
     const H = ENTETE_H + wsRows * CELL + PAD + wordListH + PAD;
@@ -968,7 +967,7 @@ function exportImage(type) {
       ctx.textAlign = 'center';
       ctx.fillText('Find words related to the theme!', W / 2, ly);
     }
-  } else {
+  } else if (type === 'cw') {
     if (!cwPlaced.length) { alert('Generate first!'); return; }
     const { minR, maxR, minC, maxC } = cwBounds;
     const gwCols = maxC - minC + 1, gwRows = maxR - minR + 1;
@@ -1012,13 +1011,17 @@ function exportImage(type) {
       const txt = p.num + '. ' + p.def;
       ctx.fillText(txt.length > 35 ? txt.slice(0, 34) + '…' : txt, PAD + colW, cy + 16 + i * 18);
     });
+  } else {
+    return;
   }
+
   const link = document.createElement('a');
   link.download = 'puzzle_' + meta.title.replace(/\s+/g, '_') + '.png';
   link.href = canvas.toDataURL('image/png');
   link.click();
   showToast('🖼️ تم حفظ الصورة!');
 }
+
 function drawEntete(ctx, meta, title, W) {
   ctx.fillStyle = '#8b5e34'; ctx.fillRect(0, 0, W, 36);
   ctx.fillStyle = '#fff'; ctx.font = 'bold 14px Arial';
