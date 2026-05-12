@@ -135,6 +135,11 @@ body.light .cw-tbl td.blk{background:#222222;border:2px solid #111111;}
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--gold)55;border-radius:4px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:40px;left:50%;transform:translateX(-50%) translateY(60px);background:#1a7a48;color:#fff;padding:10px 22px;border-radius:30px;font-size:0.92rem;font-weight:700;z-index:999;opacity:0;transition:all 0.35s ease;white-space:nowrap;box-shadow:0 4px 20px #00000055;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.error{background:#c03020;}
 </style>
 </head>
 <body>
@@ -1000,6 +1005,7 @@ function exportImage(type){
   link.download='puzzle_'+meta.title.replace(/\s+/g,'_')+'.png';
   link.href=canvas.toDataURL('image/png');
   link.click();
+  showToast('🖼️ Image saved!');
 }
 
 function drawEntete(ctx,meta,title,W){
@@ -1029,6 +1035,16 @@ function drawEntete(ctx,meta,title,W){
 }
 
 
+// ═══ TOAST ═══
+function showToast(msg, isError){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast'+(isError?' error':'');
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer=setTimeout(function(){t.classList.remove('show');},2800);
+}
+
 // ═══ JSON BACKUP ═══
 function exportJSON(){
   if(!saved.length){alert('Nothing to backup!');return;}
@@ -1036,6 +1052,7 @@ function exportJSON(){
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');a.href=url;a.download='puzzles_backup_'+new Date().toISOString().slice(0,10)+'.json';
   document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+  showToast('✅ Backup saved! ('+saved.length+' puzzles)');
 }
 function importJSON(e){
   const f=e.target.files[0];if(!f)return;
@@ -1055,6 +1072,7 @@ function importJSON(e){
   r.readAsText(f);e.target.value='';
 }
 </script>
+<div id="toast" class="toast">✅ File downloaded!</div>
 <div style="position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);padding:5px 14px;font-size:0.7rem;color:var(--text2);text-align:center;z-index:10;">
   © Gharbi Ramzi — All rights reserved
 </div>
